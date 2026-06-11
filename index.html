@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Departures - City Hall</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --elizabeth-purple: #603087;
+            --dlr-turquoise: #00AFAD;
+            --jubilee-grey: #8A9196;
+            --border-color: #333333;
+            --status-good: #00b000;
+            --status-delay: #ff9f00;
+            --status-bad: #ff3b30;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .boards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .board {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .board.elizabeth-board { border-top: 5px solid var(--elizabeth-purple); }
+        .board.dlr-board { border-top: 5px solid var(--dlr-turquoise); }
+        .board.jubilee-board { border-top: 5px solid var(--jubilee-grey); }
+
+        .board-title-area {
+            padding: 15px 20px;
+            background-color: #161616;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .board-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .line-status {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .status-good-text { color: var(--status-good); border: 1px solid var(--status-good); }
+        .status-delay-text { color: var(--status-delay); border: 1px solid var(--status-delay); }
+        .status-bad-text { color: var(--status-bad); border: 1px solid var(--status-bad); }
+
+        .board-header {
+            display: grid;
+            grid-template-columns: 1fr 100px 80px;
+            padding: 12px 20px;
+            background-color: #0b0b0b;
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .departure-list {
+            min-height: 300px;
+        }
+
+        .departure-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 80px;
+            padding: 15px 20px;
+            align-items: center;
+            border-bottom: 1px solid #2a2a2a;
+            font-size: 1.1rem;
+        }
+
+        .departure-row:last-child {
+            border-bottom: none;
+        }
+
+        .destination {
+            font-weight: bold;
+            padding-right: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .platform {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .eta {
+            text-align: right;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .status-msg {
+            padding: 50px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .pulse {
+            animation: pulse-animation 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-animation {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.4; }
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 10px 5px;
+        }
+
+        @media (max-width: 1100px) {
+            .boards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .board-header, .departure-row {
+                grid-template-columns: 1fr 70px;
+            }
+            .platform {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>City Hall</h1>
+            <p class="subtitle">Live Departures & Line Status</p>
+        </header>
+
+        <div class="boards-grid">
+            <div class="board elizabeth-board">
+                <div class="board-title-area">
+                    <div class="board-title" style="color: var(--elizabeth-purple);">Custom House</div>
+                    <div id="elizabeth-status" class="line-status">Loading...</div>
+                </div>
+                <div class="board-header">
+                    <div>DESTINATION</div>
+                    <div class="platform">PLATFORM</div>
+                    <div style="text-align: right;">DUE</div>
+                </div>
+                <div id="elizabeth-list" class="departure-list">
+                    <div class="status-msg pulse">Fetching Elizabeth line...</div>
+                </div>
+            </div>
+
+            <div class="board dlr-board">
+                <div class="board-title-area">
+                    <div class="board-title" style="color: var(--dlr-turquoise);">Royal Victoria</div>
+                    <div id="dlr-status" class="line-status">Loading...</div>
+                </div>
+                <div class="board-header">
+                    <div>DESTINATION</div>
+                    <div class="platform">PLATFORM</div>
+                    <div style="text-align: right;">DUE</div>
+                </div>
+                <div id="dlr-list" class="departure-list">
+                    <div class="status-msg pulse">Fetching DLR...</div>
+                </div>
+            </div>
+
+            <div class="board jubilee-board">
+                <div class="board-title-area">
+                    <div class="board-title" style="color: var(--jubilee-grey);">Canning Town</div>
+                    <div id="jubilee-status" class="line-status">Loading...</div>
+                </div>
+                <div class="board-header">
+                    <div>DESTINATION</div>
+                    <div class="platform">PLATFORM</div>
+                    <div style="text-align: right;">DUE</div>
+                </div>
+                <div id="jubilee-list" class="departure-list">
+                    <div class="status-msg pulse">Fetching Jubilee line...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span id="update-time">Initializing boards...</span>
+            <span>Auto-refreshing active</span>
+        </div>
+    </div>
+
+    <script>
+        const STATIONS = {
+            elizabeth: { id: '910GCUSTMHS', container: 'elizabeth-list', statusContainer: 'elizabeth-status', lineFilter: 'elizabeth' },
+            dlr: { id: '940GZZDLRVC', container: 'dlr-list', statusContainer: 'dlr-status', lineFilter: 'dlr' },
+            jubilee: { id: '940GZZLUCGT', container: 'jubilee-list', statusContainer: 'jubilee-status', lineFilter: 'jubilee' }
+        };
+
+        function cleanStationName(name) {
+            return name.replace("Underground Station", "").replace("Rail Station", "").replace("DLR Station", "").trim();
+        }
+
+        function renderRows(trains, containerId) {
+            const container = document.getElementById(containerId);
+            const upcomingTrains = trains.filter(train => train.timeToStation <= 1200);
+
+            if (!upcomingTrains || upcomingTrains.length === 0) {
+                container.innerHTML = '<div class="status-msg">No departures in next 20 mins.</div>';
+                return;
+            }
+
+            upcomingTrains.sort((a, b) => a.timeToStation - b.timeToStation);
+
+            let rowsHtml = '';
+            upcomingTrains.forEach(train => {
+                const destination = cleanStationName(train.destinationName);
+                const platform = train.platformName ? train.platformName.replace("Platform ", "Plat ") : '-';
+                let minutesLeft = Math.floor(train.timeToStation / 60);
+                let dueText = minutesLeft <= 0 ? 'Due' : `${minutesLeft} min`;
+
+                rowsHtml += `
+                    <div class="departure-row">
+                        <div class="destination" title="${destination}">${destination}</div>
+                        <div class="platform">${platform}</div>
+                        <div class="eta">${dueText}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = rowsHtml;
+        }
+
+        function updateLineStatusUI(statusElementId, statusText, severityCode) {
+            const el = document.getElementById(statusElementId);
+            el.textContent = statusText;
+            el.className = "line-status"; // Reset class
+            
+            // Map TfL statuses roughly to green/amber/red
+            if (severityCode === 10) {
+                el.classList.add("status-good-text");
+            } else if ([9, 7, 6, 5, 11].includes(severityCode)) {
+                el.classList.add("status-delay-text");
+            } else {
+                el.classList.add("status-bad-text");
+            }
+        }
+
+        async function fetchStationAndStatusData(key) {
+            const config = STATIONS[key];
+            
+            // 1. Fetch Departures
+            try {
+                const arrivalsResponse = await fetch(`https://api.tfl.gov.uk/StopPoint/${config.id}/Arrivals`);
+                if (!arrivalsResponse.ok) throw new Error();
+                let data = await arrivalsResponse.json();
+                
+                if (config.lineFilter) {
+                    data = data.filter(train => train.lineId.toLowerCase() === config.lineFilter);
+                }
+                renderRows(data, config.container);
+            } catch (error) {
+                document.getElementById(config.container).innerHTML = 
+                    '<div class="status-msg" style="color: #ff6b6b;">Unavailable. Retrying...</div>';
+            }
+
+            // 2. Fetch Line Status
+            try {
+                const statusResponse = await fetch(`https://api.tfl.gov.uk/Line/${config.lineFilter}/Status`);
+                if (!statusResponse.ok) throw new Error();
+                let statusData = await statusResponse.json();
+                
+                if (statusData && statusData[0] && statusData[0].lineStatuses[0]) {
+                    const statusObj = statusData[0].lineStatuses[0];
+                    updateLineStatusUI(config.statusContainer, statusObj.statusSeverityDescription, statusObj.statusSeverity);
+                }
+            } catch (error) {
+                document.getElementById(config.statusContainer).textContent = "Unknown";
+                document.getElementById(config.statusContainer).className = "line-status status-delay-text";
+            }
+        }
+
+        function updateDashboard() {
+            Promise.all([
+                fetchStationAndStatusData('elizabeth'),
+                fetchStationAndStatusData('dlr'),
+                fetchStationAndStatusData('jubilee')
+            ]).then(() => {
+                document.getElementById('update-time').textContent = 'Live • Last synced: ' + new Date().toLocaleTimeString();
+            });
+        }
+
+        updateDashboard();
+        setInterval(updateDashboard, 30000);
+    </script>
+</body>
+</html>
