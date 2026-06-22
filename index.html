@@ -24,51 +24,44 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 0;
+            /* Removed top padding to eliminate wasted vertical space */
+            padding: 0 20px 20px 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
         }
 
-        /* Enforce exact dimensions requested */
         .container {
-            width: 704px;
-            height: 361px;
-            padding: 10px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
+            width: 100%;
+            max-width: 1400px;
+            padding-top: 0; /* Reset top padding completely */
         }
 
-        /* 3 columns fitting nicely inside 704px */
         .boards-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            flex-grow: 1;
-            min-height: 0; /* Allows grid items to shrink correctly */
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px; /* Optional: adds a slight gap below the very top edge */
+            margin-bottom: 20px;
         }
 
         .board {
             background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 0; 
         }
 
-        .board.elizabeth-board { border-top: 4px solid var(--elizabeth-purple); }
-        .board.dlr-board { border-top: 4px solid var(--dlr-turquoise); }
-        .board.jubilee-board { border-top: 4px solid var(--jubilee-grey); }
+        .board.elizabeth-board { border-top: 5px solid var(--elizabeth-purple); }
+        .board.dlr-board { border-top: 5px solid var(--dlr-turquoise); }
+        .board.jubilee-board { border-top: 5px solid var(--jubilee-grey); }
 
         .board-title-area {
-            padding: 8px 10px;
+            padding: 15px 20px;
             background-color: #161616;
             display: flex;
             justify-content: space-between;
@@ -76,61 +69,48 @@
         }
 
         .board-title {
-            font-size: 0.85rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            letter-spacing: 0.5px;
         }
 
         .line-status {
-            font-size: 0.65rem;
+            font-size: 1.1rem;
             text-transform: uppercase;
             font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-            letter-spacing: 0.5px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            letter-spacing: 1px;
             background-color: rgba(255,255,255,0.05);
-            white-space: nowrap;
         }
 
         .status-good-text { color: var(--status-good); border: 1px solid var(--status-good); }
         .status-delay-text { color: var(--status-delay); border: 1px solid var(--status-delay); }
         .status-bad-text { color: var(--status-bad); border: 1px solid var(--status-bad); }
 
-        /* Optimized grid allocation: Destination takes up leftover space, Platform sits close */
         .board-header {
             display: grid;
-            grid-template-columns: auto 1fr 45px; 
-            padding: 6px 10px;
+            grid-template-columns: 1fr 70px 70px; 
+            padding: 12px 20px;
             background-color: #0b0b0b;
             font-weight: bold;
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
             color: var(--text-muted);
             border-bottom: 1px solid var(--border-color);
         }
 
-        /* Internal scrolling keeps the UI from breaking if many trains arrive */
         .departure-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            min-height: 0;
-        }
-
-        /* Hide scrollbars for an authentic matrix board look */
-        .departure-list::-webkit-scrollbar {
-            display: none;
+            min-height: 300px;
         }
 
         .departure-row {
             display: grid;
-            grid-template-columns: auto 1fr 45px; 
-            padding: 8px 10px;
+            grid-template-columns: 1fr 70px 70px; 
+            padding: 15px 20px;
             align-items: center;
             border-bottom: 1px solid #2a2a2a;
-            font-size: 0.85rem;
+            font-size: 1.1rem;
         }
 
         .departure-row:last-child {
@@ -139,33 +119,28 @@
 
         .destination {
             font-weight: bold;
+            padding-right: 10px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 95px; /* Keeps layout stable inside 704px width */
         }
 
         .platform {
             color: var(--text-muted);
-            font-size: 0.75rem;
-            padding-left: 6px; /* Reduced space between destination and platform */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 0.95rem;
         }
 
         .eta {
             text-align: right;
             font-weight: bold;
             color: #ffd700;
-            white-space: nowrap;
         }
 
         .status-msg {
-            padding: 30px 10px;
+            padding: 50px 20px;
             text-align: center;
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 1.1rem;
         }
 
         .pulse {
@@ -182,9 +157,25 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            padding: 6px 5px 0 5px;
+            padding: 10px 5px;
+        }
+
+        @media (max-width: 1100px) {
+            .boards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .board-header, .departure-row {
+                grid-template-columns: 1fr 70px;
+            }
+            .platform {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -198,12 +189,12 @@
                     <div id="elizabeth-status" class="line-status">Loading...</div>
                 </div>
                 <div class="board-header">
-                    <div>DEST</div>
-                    <div class="platform">PLAT</div>
+                    <div>DESTINATION</div>
+                    <div class="platform">PLATFORM</div>
                     <div style="text-align: right;">DUE</div>
                 </div>
                 <div id="elizabeth-list" class="departure-list">
-                    <div class="status-msg pulse">Fetching...</div>
+                    <div class="status-msg pulse">Fetching Elizabeth line...</div>
                 </div>
             </div>
 
@@ -213,12 +204,12 @@
                     <div id="dlr-status" class="line-status">Loading...</div>
                 </div>
                 <div class="board-header">
-                    <div>DEST</div>
-                    <div class="platform">PLAT</div>
+                    <div>DESTINATION</div>
+                    <div class="platform">PLATFORM</div>
                     <div style="text-align: right;">DUE</div>
                 </div>
                 <div id="dlr-list" class="departure-list">
-                    <div class="status-msg pulse">Fetching...</div>
+                    <div class="status-msg pulse">Fetching DLR...</div>
                 </div>
             </div>
 
@@ -228,19 +219,19 @@
                     <div id="jubilee-status" class="line-status">Loading...</div>
                 </div>
                 <div class="board-header">
-                    <div>DEST</div>
-                    <div class="platform">PLAT</div>
+                    <div>DESTINATION</div>
+                    <div class="platform">PLATFORM</div>
                     <div style="text-align: right;">DUE</div>
                 </div>
                 <div id="jubilee-list" class="departure-list">
-                    <div class="status-msg pulse">Fetching...</div>
+                    <div class="status-msg pulse">Fetching Jubilee line...</div>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <span id="update-time">Initializing...</span>
-            <span>Auto-refresh active</span>
+            <span id="update-time">Initializing boards...</span>
+            <span>Auto-refreshing active</span>
         </div>
     </div>
 
@@ -260,7 +251,7 @@
             const upcomingTrains = trains.filter(train => train.timeToStation <= 1200);
 
             if (!upcomingTrains || upcomingTrains.length === 0) {
-                container.innerHTML = '<div class="status-msg">No departures</div>';
+                container.innerHTML = '<div class="status-msg">No departures in next 20 mins.</div>';
                 return;
             }
 
@@ -271,7 +262,7 @@
                 const destination = cleanStationName(train.destinationName);
                 const platform = train.platformName ? train.platformName.replace("Platform ", "Plat ") : '-';
                 let minutesLeft = Math.floor(train.timeToStation / 60);
-                let dueText = minutesLeft <= 0 ? 'Due' : `${minutesLeft} m`;
+                let dueText = minutesLeft <= 0 ? 'Due' : `${minutesLeft} min`;
 
                 rowsHtml += `
                     <div class="departure-row">
@@ -312,7 +303,7 @@
                 renderRows(data, config.container);
             } catch (error) {
                 document.getElementById(config.container).innerHTML = 
-                    '<div class="status-msg" style="color: #ff6b6b;">Error</div>';
+                    '<div class="status-msg" style="color: #ff6b6b;">Unavailable. Retrying...</div>';
             }
 
             try {
@@ -336,7 +327,7 @@
                 fetchStationAndStatusData('dlr'),
                 fetchStationAndStatusData('jubilee')
             ]).then(() => {
-                document.getElementById('update-time').textContent = 'Synced: ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('update-time').textContent = 'Live • Last synced: ' + new Date().toLocaleTimeString();
             });
         }
 
